@@ -1,8 +1,9 @@
 import pandas as pd
+import numpy as np
 import requests
 import yaml
 
-def get_tweets(bearer_token, url):
+def get_tweets_from_url(bearer_token, url):
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
     response = requests.request("GET", url, headers=headers)
     return response.json()
@@ -21,11 +22,20 @@ def get_config():
     with open('config.yaml', 'r') as ymlfile:
         return yaml.load(ymlfile)
 
+def filter_tweets(tweets):
+    tweets = [tweet['text'] for tweet in tweets if tweet['text'][0] != '@']
+    return tweets
+
+def get_tweets(bearer_token):
+    url = create_twitter_url()
+    res_json = get_tweets_from_url(bearer_token, url)
+    tweets = filter_tweets(res_json['data'])
+    return tweets
+
 def main():
     config = get_config()
     bearer_token = config['twitter api']['bearer token']
-    url = create_twitter_url()
-    res_json = get_tweets(bearer_token, url)
+    tweets = get_tweets(bearer_token)
 
     return
     
